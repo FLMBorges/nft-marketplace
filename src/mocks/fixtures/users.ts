@@ -11,7 +11,8 @@ export const userFixtures: DbUser[] = [
     id: 'usr_ana',
     name: 'Ana Colecionadora',
     email: 'ana@kurio.dev',
-    phone: '+55 11 98888-1111',
+    username: 'ana.coleciona',
+    ensName: 'ana',
     avatar: null,
     salt: 'a1f3c9e2',
     passwordHash: '25687746db8a1d3b3034f6875df24e3bb9784c1fab79cff995d1614e7b781b19',
@@ -20,7 +21,8 @@ export const userFixtures: DbUser[] = [
     id: 'usr_bruno',
     name: 'Bruno Criador',
     email: 'bruno@kurio.dev',
-    phone: '+55 21 97777-2222',
+    username: 'bruno.cria',
+    ensName: '',
     avatar: null,
     salt: 'b7d4e810',
     passwordHash: '9af4365d3e3683e62797e426f578b80fe1a5be4d4842a40bb204c758a455689f',
@@ -36,6 +38,7 @@ export const walletFixtures: (Wallet & { userId: string })[] = [
     provider: 'metamask',
     network: 'ethereum',
     address: '0x7a42c0ffee254729296a45a3885639AC7E10F9d5',
+    ens: 'ana.eth',
   },
   {
     id: 'wal_bruno_primary',
@@ -45,6 +48,7 @@ export const walletFixtures: (Wallet & { userId: string })[] = [
     provider: 'coinbase',
     network: 'polygon',
     address: '0x19E9b52a1a7E4d3C6f2B8a0D5c7E9F1a2B3c4D5e',
+    ens: '',
   },
 ]
 

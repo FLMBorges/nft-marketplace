@@ -65,6 +65,7 @@ export const orderHandlers = [
         nftId: item.nftId,
         name: item.nft.name,
         image: item.nft.image,
+        tokenId: item.tokenId,
         edition: item.edition,
         quantity: item.quantity,
         unitPrice: item.unitPrice,

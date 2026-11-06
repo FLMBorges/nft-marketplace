@@ -43,7 +43,7 @@ test.describe('Conta e sessão', () => {
     await page.goto('/perfil')
     await mock(page, 'expireSessions')
     // A próxima chamada à API detecta a expiração (pode ser esta ou uma consulta em segundo plano).
-    await page.getByRole('button', { name: 'Salvar dados' }).click({ timeout: 2000 }).catch(() => {})
+    await page.getByRole('button', { name: 'Salvar', exact: true }).click({ timeout: 2000 }).catch(() => {})
     await expect(page).toHaveURL(/\/login\?redirect=%2Fperfil/)
     await expect(page.getByText('Sua sessão expirou. Entre novamente para continuar de onde parou.')).toBeVisible()
     await page.getByLabel('E-mail').fill(USERS.ana.email)
@@ -64,6 +64,6 @@ test.describe('Conta e sessão', () => {
     await expect(page.getByText('Você ainda não favoritou nenhum NFT.')).toBeVisible()
     await expect(page.getByLabel('E-mail')).toHaveValue(USERS.bruno.email)
     await page.goto('/carteiras')
-    await expect(page.getByLabel('Endereço').first()).not.toHaveValue(/0x7a42/)
+    await expect(page.getByLabel('Endereço da carteira').first()).not.toHaveValue(/0x7a42/)
   })
 })

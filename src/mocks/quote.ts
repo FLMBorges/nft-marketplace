@@ -37,6 +37,7 @@ export function buildCart(key: string, network: Network): Cart {
       available,
       unitPrice: nft.price,
       lineTotal: fromWei(toWei(nft.price) * BigInt(line.quantity)),
+      tokenId: nft.tokenId,
       nft: toSummary(nft),
     })
   }

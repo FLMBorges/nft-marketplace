@@ -139,7 +139,8 @@ export function NftDetail({ nft }: { nft: Nft }) {
             {!edition && <p className="mt-2 text-sm text-destructive">Todas as edições deste NFT estão esgotadas.</p>}
           </fieldset>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 max-md:sticky max-md:bottom-16 max-md:z-20 max-md:-mx-4 max-md:rounded-t-2xl max-md:border-t max-md:border-border max-md:bg-card max-md:px-4 max-md:py-3">
+            <span aria-hidden className="text-sm md:hidden">Qtd.</span>
             <div role="group" aria-label="Quantidade" className="flex items-center gap-2">
               <Button
                 type="button"
@@ -163,7 +164,8 @@ export function NftDetail({ nft }: { nft: Nft }) {
                 <Plus aria-hidden />
               </Button>
             </div>
-            <Button type="button" onClick={buy} disabled={!edition || addToCart.isPending} className="ml-auto px-6">
+            <p aria-hidden className="ml-auto text-lg font-bold text-primary md:hidden">{nft.price} ETH</p>
+            <Button type="button" onClick={buy} disabled={!edition || addToCart.isPending} className="px-6 max-md:h-11 max-md:flex-1 max-md:rounded-full md:ml-auto">
               {addToCart.isPending ? 'Adicionando…' : 'Comprar'}
             </Button>
             <FavoriteButton nftId={nft.id} nftName={nft.name} />

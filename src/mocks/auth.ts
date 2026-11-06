@@ -17,7 +17,7 @@ export async function hashPassword(salt: string, password: string) {
   return Array.from(new Uint8Array(bytes), (b) => b.toString(16).padStart(2, '0')).join('')
 }
 
-export const toPublicUser = ({ id, name, email, phone, avatar }: DbUser): User => ({ id, name, email, phone, avatar })
+export const toPublicUser = ({ id, name, email, username, ensName, avatar }: DbUser): User => ({ id, name, email, username, ensName, avatar })
 
 export function createSession(userId: string) {
   const token = crypto.randomUUID()

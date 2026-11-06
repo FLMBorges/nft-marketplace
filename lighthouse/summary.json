@@ -1,0 +1,239 @@
+{
+  "environment": {
+    "date": "2026-11-06T05:54:26.363Z",
+    "url": "http://localhost:4173",
+    "lighthouse": "13.6.0",
+    "chrome": "Chrome/153.0.0.0",
+    "node": "v22.23.4",
+    "os": "Linux 6.18.44-fc-v242 (x64)",
+    "cpus": 2,
+    "runsPerPage": 3,
+    "conditions": "Build de produção (vite build + vite preview) com os mocks ligados e o cenário padrão. Mobile: throttling simulado padrão do Lighthouse (4x CPU, rede 4G lenta). Desktop: preset desktop do Lighthouse."
+  },
+  "summary": [
+    {
+      "page": "inicio",
+      "profile": "mobile",
+      "scores": {
+        "performance": 75,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "LCP": 3942.67,
+        "CLS": 0,
+        "TBT": 506.9175000000005
+      },
+      "runs": [
+        {
+          "scores": {
+            "performance": 67,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 4281.914000000001,
+            "CLS": 0,
+            "TBT": 770.5215
+          }
+        },
+        {
+          "scores": {
+            "performance": 78,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 3926.5126,
+            "CLS": 0,
+            "TBT": 397.87185
+          }
+        },
+        {
+          "scores": {
+            "performance": 75,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 3942.67,
+            "CLS": 0,
+            "TBT": 506.9175000000005
+          }
+        }
+      ]
+    },
+    {
+      "page": "inicio",
+      "profile": "desktop",
+      "scores": {
+        "performance": 99,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "LCP": 974.2213499999998,
+        "CLS": 0.0006801519317682922,
+        "TBT": 33
+      },
+      "runs": [
+        {
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 1025.105,
+            "CLS": 0.0006801519317682922,
+            "TBT": 35.50000000000006
+          }
+        },
+        {
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 972.1857,
+            "CLS": 0.0006801519317682922,
+            "TBT": 33
+          }
+        },
+        {
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 974.2213499999998,
+            "CLS": 0.0006801519317682922,
+            "TBT": 5
+          }
+        }
+      ]
+    },
+    {
+      "page": "detalhe",
+      "profile": "mobile",
+      "scores": {
+        "performance": 69,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "LCP": 4601.832699999999,
+        "CLS": 0,
+        "TBT": 575.5
+      },
+      "runs": [
+        {
+          "scores": {
+            "performance": 69,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 4643.7427,
+            "CLS": 0,
+            "TBT": 579.5
+          }
+        },
+        {
+          "scores": {
+            "performance": 69,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 4601.832699999999,
+            "CLS": 0,
+            "TBT": 575.5
+          }
+        },
+        {
+          "scores": {
+            "performance": 71,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 4442.23215,
+            "CLS": 0,
+            "TBT": 541.6744499999995
+          }
+        }
+      ]
+    },
+    {
+      "page": "detalhe",
+      "profile": "desktop",
+      "scores": {
+        "performance": 98,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "LCP": 1049.543475,
+        "CLS": 0.03075958064611442,
+        "TBT": 0
+      },
+      "runs": [
+        {
+          "scores": {
+            "performance": 99,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 1038.18775,
+            "CLS": 0.03075958064611442,
+            "TBT": 0
+          }
+        },
+        {
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 1049.543475,
+            "CLS": 0.03075958064611442,
+            "TBT": 0
+          }
+        },
+        {
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 1069.6412500000001,
+            "CLS": 0.03075958064611442,
+            "TBT": 0
+          }
+        }
+      ]
+    }
+  ]
+}

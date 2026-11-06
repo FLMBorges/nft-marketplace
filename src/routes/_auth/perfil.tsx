@@ -1,17 +1,20 @@
 import { useMutation, useQueries, useQueryClient } from '@tanstack/react-query'
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useRef, type ChangeEvent, type FormEvent } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
+import { ImageIcon } from 'lucide-react'
+import { useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { toast } from 'sonner'
-import { changePassword, updateAvatar, updateProfile } from '@/api/account'
-import { errorMessage } from '@/api/client'
+import { changePassword, removeAvatar, updateAvatar, updateProfile } from '@/api/account'
+import { errorMessage, getApiError } from '@/api/client'
 import { useFavorites } from '@/api/favorites'
 import { nftQuery } from '@/api/nfts'
 import { useSession } from '@/api/session'
+import { AccountLayout } from '@/components/account/account-layout'
 import { NftCard } from '@/components/catalog/nft-card'
-import { Field, FormError } from '@/components/form/field'
+import { Field, FormError, PasswordField, RequiredMark } from '@/components/form/field'
 import { Button } from '@/components/ui/button'
-import { useFormErrors } from '@/lib/form'
-import { avatarSchema, passwordChangeSchema, profileSchema } from '@/lib/schemas'
+import { Input } from '@/components/ui/input'
+import { formValues } from '@/lib/form'
+import { avatarSchema, fieldErrors, passwordChangeSchema, profileSchema } from '@/lib/schemas'
 import type { Session, User } from '@/types/user'
 
 export const Route = createFileRoute('/_auth/perfil')({
@@ -24,43 +27,57 @@ function ProfilePage() {
   const { data: session } = useSession()
   const queryClient = useQueryClient()
   const user = session?.user
-  const profileForm = useFormErrors()
-  const passwordForm = useFormErrors()
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [formError, setFormError] = useState<string | null>(null)
   const avatarInput = useRef<HTMLInputElement>(null)
 
   /** A sessão em cache também guarda o usuário: atualiza para o header refletir na hora. */
   const syncUser = (updated: User) =>
     queryClient.setQueryData<Session | null>(['session'], (old) => (old ? { ...old, user: updated } : old))
 
-  const profile = useMutation({ mutationFn: updateProfile, onSuccess: syncUser })
+  const save = useMutation({
+    /** Salva os dados e, se algum campo de senha foi preenchido, também troca a senha. */
+    mutationFn: async ({ profile, password }: { profile: Record<string, string>; password: Record<string, string> | null }) => {
+      const updated = await updateProfile(profile)
+      syncUser(updated)
+      if (password) await changePassword(password)
+      return !!password
+    },
+  })
   const avatar = useMutation({ mutationFn: updateAvatar, onSuccess: syncUser })
-  const password = useMutation({ mutationFn: changePassword })
+  const dropAvatar = useMutation({ mutationFn: removeAvatar, onSuccess: syncUser })
 
-  function submitProfile(event: FormEvent<HTMLFormElement>) {
+  function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = event.currentTarget
-    const data = profileForm.validate(profileSchema, form)
-    if (data) {
-      profile.mutate(data, {
-        onSuccess: () => toast.success('Dados atualizados.'),
-        onError: (error) => profileForm.fromApi(error, form),
-      })
+    const values = formValues(form)
+    const profile = profileSchema.safeParse(values)
+    const wantsPassword = !!(values.currentPassword || values.newPassword || values.confirmPassword)
+    const password = wantsPassword ? passwordChangeSchema.safeParse(values) : null
+    const nextErrors = {
+      ...(profile.success ? {} : fieldErrors(profile.error)),
+      ...(password && !password.success ? fieldErrors(password.error) : {}),
     }
-  }
+    setErrors(nextErrors)
+    setFormError(null)
+    const focusFirstError = () => requestAnimationFrame(() => form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus())
+    if (!profile.success || (password && !password.success)) return focusFirstError()
 
-  function submitPassword(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const form = event.currentTarget
-    const data = passwordForm.validate(passwordChangeSchema, form)
-    if (data) {
-      password.mutate(data, {
-        onSuccess: () => {
-          form.reset()
-          toast.success('Senha alterada.')
+    save.mutate(
+      { profile: profile.data, password: password?.success ? password.data : null },
+      {
+        onSuccess: (changedPassword) => {
+          for (const name of ['currentPassword', 'newPassword', 'confirmPassword']) form.querySelector<HTMLInputElement>(`[name=${name}]`)!.value = ''
+          toast.success(changedPassword ? 'Dados e senha atualizados.' : 'Dados atualizados.')
         },
-        onError: (error) => passwordForm.fromApi(error, form),
-      })
-    }
+        onError: (error) => {
+          const fields = getApiError(error)?.fields
+          setErrors(fields ?? {})
+          setFormError(fields ? null : errorMessage(error))
+          if (fields) focusFirstError()
+        },
+      },
+    )
   }
 
   function pickAvatar(event: ChangeEvent<HTMLInputElement>) {
@@ -83,67 +100,107 @@ function ProfilePage() {
   if (!user) return null
 
   return (
-    <section className="mx-auto max-w-4xl space-y-8 px-4 py-8">
-      <div className="flex flex-wrap items-center gap-4">
-        {user.avatar ? (
-          <img src={user.avatar} alt="Seu avatar" width={80} height={80} className="size-20 rounded-full object-cover" />
-        ) : (
-          <span aria-hidden className="grid size-20 place-items-center rounded-full bg-primary text-3xl font-bold text-primary-foreground">
-            {user.name[0]}
-          </span>
-        )}
-        <div>
-          <h1 className="text-2xl font-bold">Perfil do colecionador</h1>
-          <p className="text-sm text-muted-foreground">{user.email}</p>
-        </div>
-        <div className="ml-auto flex gap-2">
-          <input ref={avatarInput} type="file" accept="image/png,image/jpeg,image/webp" onChange={pickAvatar} className="sr-only" tabIndex={-1} aria-hidden />
-          <Button variant="outline" disabled={avatar.isPending} onClick={() => avatarInput.current?.click()}>
-            {avatar.isPending ? 'Enviando…' : 'Alterar avatar'}
-          </Button>
-          <Button asChild variant="outline">
-            <Link to="/carteiras">Minhas carteiras</Link>
-          </Button>
-        </div>
-      </div>
+    <AccountLayout>
+      <form noValidate onSubmit={submit} aria-labelledby="profile-title" className="space-y-8">
+        <h1 id="profile-title" className="font-semibold">
+          Perfil do colecionador
+        </h1>
+        <FormError message={formError} />
 
-      <div className="grid gap-8 md:grid-cols-2">
-        <form noValidate onSubmit={submitProfile} aria-labelledby="profile-title" className="space-y-4 rounded-lg bg-card p-6">
-          <h2 id="profile-title" className="font-semibold">
-            Dados pessoais
-          </h2>
-          <FormError message={profileForm.formError} />
-          <Field label="Nome" name="name" autoComplete="name" defaultValue={user.name} error={profileForm.errors.name} />
-          <Field label="E-mail" name="email" type="email" autoComplete="email" defaultValue={user.email} error={profileForm.errors.email} />
-          <Field label="Telefone" name="phone" type="tel" autoComplete="tel" defaultValue={user.phone} error={profileForm.errors.phone} />
-          <Button type="submit" disabled={profile.isPending}>
-            {profile.isPending ? 'Salvando…' : 'Salvar dados'}
-          </Button>
-        </form>
+        <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+          <Field label="Nome de exibição" name="name" required autoComplete="name" defaultValue={user.name} error={errors.name} />
+          <Field label="Nome de usuário" name="username" required autoComplete="username" defaultValue={user.username} error={errors.username} />
+          <Field label="E-mail" name="email" type="email" required autoComplete="email" defaultValue={user.email} error={errors.email} />
+          <EnsField defaultValue={user.ensName} error={errors.ensName} />
 
-        <form noValidate onSubmit={submitPassword} aria-labelledby="password-title" className="space-y-4 rounded-lg bg-card p-6">
-          <h2 id="password-title" className="font-semibold">
-            Alterar senha
-          </h2>
-          <FormError message={passwordForm.formError} />
-          <Field label="Senha atual" name="currentPassword" type="password" autoComplete="current-password" error={passwordForm.errors.currentPassword} />
-          <Field
+          <div className="space-y-1.5 sm:col-start-2">
+            <p className="text-sm font-medium">Avatar</p>
+            <div className="flex items-center gap-3">
+              {user.avatar ? (
+                <img src={user.avatar} alt="Seu avatar" width={40} height={40} className="size-10 rounded-full object-cover" />
+              ) : (
+                <span aria-hidden className="grid size-10 place-items-center rounded-full bg-secondary text-primary">
+                  <ImageIcon className="size-4" />
+                </span>
+              )}
+              <input
+                ref={avatarInput}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={pickAvatar}
+                className="sr-only"
+                tabIndex={-1}
+                aria-hidden
+              />
+              <Button type="button" size="sm" disabled={avatar.isPending} onClick={() => avatarInput.current?.click()}>
+                {avatar.isPending ? 'Enviando…' : 'Alterar avatar'}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                disabled={!user.avatar || dropAvatar.isPending}
+                onClick={() => dropAvatar.mutate(undefined, { onSuccess: () => toast.success('Avatar removido.') })}
+              >
+                Remover avatar
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <fieldset className="max-w-sm space-y-4">
+          <legend className="mb-4 font-semibold">Alterar senha</legend>
+          <PasswordField label="Senha atual" name="currentPassword" autoComplete="current-password" error={errors.currentPassword} />
+          <PasswordField
             label="Nova senha"
             name="newPassword"
-            type="password"
             autoComplete="new-password"
             hint="Mínimo de 8 caracteres, com letras e números."
-            error={passwordForm.errors.newPassword}
+            error={errors.newPassword}
           />
-          <Field label="Confirmar nova senha" name="confirmPassword" type="password" autoComplete="new-password" error={passwordForm.errors.confirmPassword} />
-          <Button type="submit" disabled={password.isPending}>
-            {password.isPending ? 'Alterando…' : 'Alterar senha'}
-          </Button>
-        </form>
-      </div>
+          <PasswordField label="Confirmar nova senha" name="confirmPassword" autoComplete="new-password" error={errors.confirmPassword} />
+        </fieldset>
+
+        <Button type="submit" className="px-8" disabled={save.isPending}>
+          {save.isPending ? 'Salvando…' : 'Salvar'}
+        </Button>
+      </form>
 
       <Favorites />
-    </section>
+    </AccountLayout>
+  )
+}
+
+/** Nome ENS: o sufixo `.eth` é fixo e fica ao lado do campo. */
+function EnsField({ defaultValue, error }: { defaultValue: string; error?: string }) {
+  return (
+    <div className="space-y-1.5">
+      <label htmlFor="profile-ens" className="text-sm font-medium">
+        Nome ENS
+        <RequiredMark />
+      </label>
+      <div className="flex">
+        <span aria-hidden className="grid place-items-center rounded-l-md border border-r-0 border-input bg-secondary px-2 text-xs">
+          .eth
+        </span>
+        <Input
+          id="profile-ens"
+          name="ensName"
+          defaultValue={defaultValue}
+          aria-invalid={!!error}
+          aria-describedby={error ? 'profile-ens-error' : 'profile-ens-hint'}
+          className="rounded-l-none"
+        />
+      </div>
+      <p id="profile-ens-hint" className="sr-only">
+        Sem o sufixo .eth
+      </p>
+      {error && (
+        <p id="profile-ens-error" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
+    </div>
   )
 }
 
@@ -152,9 +209,9 @@ function Favorites() {
   const nfts = useQueries({ queries: ids.map((id) => nftQuery(id)) })
 
   return (
-    <section aria-labelledby="favorites-title">
+    <section id="favoritos" aria-labelledby="favorites-title" className="mt-12 scroll-mt-8">
       <h2 id="favorites-title" className="font-semibold">
-        Favoritos
+        Lista de interesse
       </h2>
       {isPending ? (
         <p className="mt-4 text-sm text-muted-foreground">Carregando favoritos…</p>

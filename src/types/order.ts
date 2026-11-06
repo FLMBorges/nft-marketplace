@@ -15,6 +15,7 @@ export type Order = {
     nftId: string
     name: string
     image: string
+    tokenId: string
     edition: EditionType
     quantity: number
     unitPrice: string
@@ -27,7 +28,7 @@ export type Order = {
   coupon: { code: string; percent: number } | null
   network: Network
   wallet: { label: string; address: string }
-  buyer: { name: string; email: string }
+  buyer: { name: string; email: string; note: string }
   /** Referência simulada da transação. Só existe para pedido confirmado. */
   txHash: string | null
   declineReason: string | null
@@ -37,5 +38,5 @@ export type CreateOrderInput = {
   quoteSignature: string
   network: Network
   walletId: string
-  buyer: { name: string; email: string }
+  buyer: { name: string; email: string; note: string }
 }

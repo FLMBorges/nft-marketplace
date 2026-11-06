@@ -40,6 +40,14 @@ export const accountHandlers = [
     return ok<User>(toPublicUser(user))
   }),
 
+  http.delete('/api/profile/avatar', ({ cookies }) => {
+    const user = requireUser(cookies)
+    if (user instanceof Response) return user
+    user.avatar = null
+    persist()
+    return ok<User>(toPublicUser(user))
+  }),
+
   http.put('/api/profile/password', async ({ request, cookies }) => {
     const user = requireUser(cookies)
     if (user instanceof Response) return user

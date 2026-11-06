@@ -4,7 +4,9 @@ export type User = {
   id: string
   name: string
   email: string
-  phone: string
+  username: string
+  /** Nome ENS sem o sufixo `.eth`. */
+  ensName: string
   avatar: string | null
 }
 
@@ -26,4 +28,6 @@ export type Wallet = {
   provider: WalletProvider
   network: Network
   address: string
+  /** Nome ENS opcional (ex.: `nova.kurio.eth`). */
+  ens: string
 }

@@ -8,6 +8,7 @@ export type CartItem = {
   available: number
   unitPrice: string
   lineTotal: string
+  tokenId: string
   nft: NftSummary
 }
 

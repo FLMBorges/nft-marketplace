@@ -16,6 +16,7 @@ export function useWallets() {
 
 export const updateProfile = async (body: Record<string, string>) => (await api.put<User>('/profile', body)).data
 export const updateAvatar = async (dataUrl: string) => (await api.put<User>('/profile/avatar', { dataUrl })).data
+export const removeAvatar = async () => (await api.delete<User>('/profile/avatar')).data
 export const changePassword = (body: Record<string, string>) => api.put('/profile/password', body)
 export const saveWallet = async (slot: WalletSlot, body: Record<string, string>) => (await api.put<Wallet[]>(`/wallets/${slot}`, body)).data
 export const connectWallet = (id: string) => api.post(`/wallets/${id}/connect`)

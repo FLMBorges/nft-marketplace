@@ -1,4 +1,4 @@
-import { expect, mock, test } from './fixtures'
+import { expect, test } from './fixtures'
 
 test.describe('Carregamento e falhas', () => {
   test.use({ scenario: { latency: 'slow' } })
@@ -15,12 +15,14 @@ test.describe('Carregamento e falhas', () => {
   })
 })
 
-test('falha do catálogo mostra erro e recupera com nova tentativa', async ({ page }) => {
-  await page.goto('/nft/sage-nomad-009')
-  // 3 falhas seguidas esgotam as 2 repetições automáticas
-  await mock(page, 'failNext', 'nfts.list', 'server', 3)
-  await page.goto('/?category=musica')
-  await expect(page.getByText('Não foi possível carregar o catálogo.')).toBeVisible({ timeout: 15_000 })
-  await page.getByRole('button', { name: 'Tentar novamente' }).click()
-  await expect(page.locator('#catalogo li a h3').first()).toBeVisible()
+test.describe('Falha e recuperação', () => {
+  // 3 falhas seguidas no catálogo esgotam as 2 repetições automáticas do React Query.
+  test.use({ scenario: { latency: 'none', failures: { 'nfts.list': { mode: 'server', times: 3 } } } })
+
+  test('falha do catálogo mostra erro e recupera com nova tentativa', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByText('Não foi possível carregar o catálogo.')).toBeVisible({ timeout: 15_000 })
+    await page.getByRole('button', { name: 'Tentar novamente' }).click()
+    await expect(page.locator('#catalogo li a h3').first()).toBeVisible()
+  })
 })

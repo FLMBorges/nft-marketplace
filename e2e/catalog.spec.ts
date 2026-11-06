@@ -48,6 +48,8 @@ test.describe('Catálogo', () => {
     await page.getByLabel('Nome do NFT').fill('golden')
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/q=golden/)
+    await expect(page.getByText(/^Resultados para/)).toBeVisible()
+    await expect(page.locator('#catalogo ul[aria-busy="false"]')).toBeVisible()
     const names = await page.locator('#catalogo li a h3').allInnerTexts()
     expect(names.length).toBeGreaterThan(0)
     for (const name of names) expect(name.toLowerCase()).toContain('golden')

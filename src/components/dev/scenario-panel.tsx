@@ -51,8 +51,9 @@ export default function ScenarioPanel() {
   return (
     <Sheet onOpenChange={(open) => open && setScenario(mock.getScenario())}>
       <SheetTrigger asChild>
-        <Button size="sm" variant="outline" data-testid="scenario-trigger" className="fixed bottom-4 left-4 z-40 border-primary bg-background shadow-lg">
-          <FlaskConical aria-hidden /> Cenários
+        <Button size="sm" variant="outline" data-testid="scenario-trigger" className="fixed bottom-20 left-4 z-40 md:bottom-4 border-primary bg-background shadow-lg">
+          <FlaskConical aria-hidden />
+          <span className="max-md:sr-only">Cenários</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="overflow-y-auto px-6 pb-8">

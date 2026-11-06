@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { CircleCheck, CircleX, LoaderCircle } from 'lucide-react'
+import { CircleX, LoaderCircle, MailCheck, X } from 'lucide-react'
+import { toast } from 'sonner'
 import { getApiError } from '@/api/client'
 import { orderQuery } from '@/api/orders'
 import { Button } from '@/components/ui/button'
@@ -63,94 +64,116 @@ function OrderPage() {
   }
 
   return (
-    <section className="mx-auto max-w-2xl px-4 py-12">
-      <div className="text-center">
-        <CircleCheck aria-hidden className="mx-auto size-12 text-primary" />
-        <h1 className="mt-4 text-2xl font-bold">Pedido confirmado!</h1>
-        <p className="mt-2 text-muted-foreground">Obrigado, {order.buyer.name}. Os NFTs já estão na sua carteira.</p>
-      </div>
+    <section className="mx-auto max-w-lg px-4 py-12">
+      <article aria-labelledby="receipt-title" className="relative overflow-hidden rounded-lg border-b-4 border-primary bg-card text-sm">
+        <Link
+          to="/"
+          search={DEFAULT_CATALOG_SEARCH}
+          aria-label="Fechar e voltar ao início"
+          className="absolute top-3 right-3 text-primary hover:opacity-80"
+        >
+          <X aria-hidden className="size-4" />
+        </Link>
+        <header className="px-6 pt-8 pb-4 text-center">
+          <MailCheck aria-hidden className="mx-auto size-12 text-primary" />
+          <h1 id="receipt-title" className="mt-3 font-semibold">
+            Seus NFTs agora estão na sua carteira
+          </h1>
+          <p className="sr-only">Pedido confirmado.</p>
+        </header>
 
-      <article aria-label="Recibo" className="mt-8 space-y-6 rounded-lg bg-card p-6 text-sm">
-        <dl className="grid gap-2 sm:grid-cols-2">
-          <div>
-            <dt className="text-muted-foreground">Pedido</dt>
-            <dd className="break-all">{order.id}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Data</dt>
-            <dd>{new Date(order.updatedAt).toLocaleString('pt-BR')}</dd>
-          </div>
-          <div className="sm:col-span-2">
-            <dt className="text-muted-foreground">Transação (simulada)</dt>
-            <dd className="font-mono break-all">{order.txHash}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Rede</dt>
-            <dd>{NETWORK_LABELS[order.network]}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Carteira</dt>
-            <dd>
-              {order.wallet.label} ({shortAddress(order.wallet.address)})
+        <dl className="grid grid-cols-2 gap-3 border-y border-primary/60 px-6 py-3 text-xs sm:grid-cols-4 sm:divide-x sm:divide-border sm:gap-0">
+          <div className="sm:pr-3">
+            <dt className="font-semibold">ID da transação</dt>
+            <dd className="text-muted-foreground" title={order.txHash ?? undefined}>
+              {order.txHash ? shortAddress(order.txHash) : '—'}
             </dd>
           </div>
+          <div className="sm:px-3">
+            <dt className="font-semibold">Data</dt>
+            <dd className="text-muted-foreground">
+              {new Date(order.updatedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+            </dd>
+          </div>
+          <div className="sm:px-3">
+            <dt className="font-semibold">Total</dt>
+            <dd className="text-muted-foreground">{order.total} ETH</dd>
+          </div>
+          <div className="sm:pl-3">
+            <dt className="font-semibold">Carteira</dt>
+            <dd className="truncate text-muted-foreground">{order.wallet.label}</dd>
+          </div>
         </dl>
 
-        <table className="w-full">
-          <caption className="sr-only">Itens comprados</caption>
-          <thead className="text-left text-muted-foreground">
-            <tr>
-              <th scope="col" className="pb-2 font-normal">
-                Item
-              </th>
-              <th scope="col" className="pb-2 font-normal">
-                Qtd.
-              </th>
-              <th scope="col" className="pb-2 text-right font-normal">
-                Valor
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {order.items.map((item) => (
-              <tr key={`${item.nftId}:${item.edition}`} className="border-t border-border">
-                <td className="py-2">
-                  {item.name} <span className="text-muted-foreground">· {EDITION_LABELS[item.edition]}</span>
-                  <br />
-                  <span className="text-xs text-muted-foreground">{item.unitPrice} ETH cada</span>
-                </td>
-                <td className="py-2">{item.quantity}</td>
-                <td className="py-2 text-right">{item.lineTotal} ETH</td>
+        <div className="px-6 py-4" aria-label="Recibo" role="group">
+          <h2 className="font-semibold">Detalhes da transação</h2>
+          <table className="mt-2 w-full">
+            <caption className="sr-only">Itens comprados</caption>
+            <thead className="border-b border-border text-left">
+              <tr>
+                <th scope="col" className="pb-1 font-semibold">
+                  NFTs
+                </th>
+                <th scope="col" className="pb-1 text-center font-semibold">
+                  Edições
+                </th>
+                <th scope="col" className="pb-1 text-right font-semibold">
+                  Subtotal
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {order.items.map((item) => (
+                <tr key={`${item.nftId}:${item.edition}`}>
+                  <td className="py-2">
+                    <div className="flex items-center gap-2">
+                      <img src={item.image} alt="" width={600} height={600} className="size-9 rounded object-cover" />
+                      <div>
+                        <p className="font-semibold">{item.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          ID do token: {item.tokenId} · {EDITION_LABELS[item.edition]}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-2 text-center text-xs text-muted-foreground">(x {item.quantity})</td>
+                  <td className="py-2 text-right font-semibold text-primary">{item.lineTotal} ETH</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-        <dl className="space-y-1 border-t border-border pt-4">
-          <div className="flex justify-between">
-            <dt className="text-muted-foreground">Subtotal</dt>
-            <dd>{order.subtotal} ETH</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-muted-foreground">Desconto{order.coupon && ` (${order.coupon.code})`}</dt>
-            <dd>{order.discount === '0' ? '—' : `− ${order.discount} ETH`}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-muted-foreground">Taxa de rede</dt>
-            <dd>{order.networkFee} ETH</dd>
-          </div>
-          <div className="flex justify-between text-base font-bold">
-            <dt>Total</dt>
-            <dd className="text-primary">{order.total} ETH</dd>
-          </div>
-        </dl>
+          <dl className="mt-2 ml-auto w-2/3 space-y-1">
+            {order.discount !== '0' && (
+              <div className="flex justify-between">
+                <dt>Desconto{order.coupon && ` (${order.coupon.code})`}</dt>
+                <dd>(-) {order.discount} ETH</dd>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <dt>Taxa de rede</dt>
+              <dd>{order.networkFee} ETH</dd>
+            </div>
+            <div className="flex justify-between font-bold">
+              <dt>Total</dt>
+              <dd className="text-primary">{order.total} ETH</dd>
+            </div>
+          </dl>
+        </div>
+
+        <footer className="border-t border-border px-6 py-5 text-center">
+          <p className="text-xs text-muted-foreground">
+            Transação confirmada na {NETWORK_LABELS[order.network]}. A propriedade foi transferida para sua carteira conectada (
+            {shortAddress(order.wallet.address)}) e registrada na rede.
+          </p>
+          <Button
+            className="mt-4"
+            onClick={() => toast.info(`Explorador simulado: a transação ${order.txHash} existe apenas nesta demonstração.`)}
+          >
+            Ver no explorador (simulado)
+          </Button>
+        </footer>
       </article>
-
-      <Button asChild className="mt-6 w-full">
-        <Link to="/" search={DEFAULT_CATALOG_SEARCH} hash="catalogo">
-          Continuar explorando
-        </Link>
-      </Button>
     </section>
   )
 }

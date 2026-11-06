@@ -1,20 +1,22 @@
 import './index.css'
 
 /**
- * Os mocks precisam ligar ANTES de a aplicação carregar: o socket.io-client guarda o `WebSocket`
- * do navegador quando o módulo é importado. Por isso a aplicação é importada só depois.
+ * A aplicação e os mocks são baixados EM PARALELO, mas a aplicação só é renderizada depois que o MSW liga.
+ * O socket.io-client é importado sob demanda (em RealtimeSync), depois do render: assim ele usa o
+ * `WebSocket` já interceptado pelo MSW.
  */
+const app = import('./app')
+
 async function enableMocking() {
   if (import.meta.env.VITE_ENABLE_MOCKS !== 'true') return
 
   const { worker } = await import('./mocks/browser')
   await worker.start({
+    quiet: import.meta.env.PROD,
     onUnhandledRequest(request, print) {
       if (new URL(request.url).pathname.startsWith('/api')) print.error()
     },
   })
 }
 
-enableMocking()
-  .then(() => import('./app'))
-  .then(({ renderApp }) => renderApp())
+Promise.all([app, enableMocking()]).then(([{ renderApp }]) => renderApp())

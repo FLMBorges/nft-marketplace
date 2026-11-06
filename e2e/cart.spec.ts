@@ -10,7 +10,7 @@ test.describe('Carrinho', () => {
     await expect(summary.getByText('2.384 ETH')).toBeVisible()
 
     // Cupons inválido e expirado
-    const coupon = page.getByLabel('Cupom de desconto')
+    const coupon = page.getByLabel('Código promocional')
     await coupon.fill('NAOEXISTE')
     await page.getByRole('button', { name: 'Aplicar' }).click()
     await expect(page.getByText('Cupom inválido.')).toBeVisible()
@@ -28,7 +28,7 @@ test.describe('Carrinho', () => {
     await page.getByRole('button', { name: 'Remover cupom' }).click()
     await expect(summary.getByText('2.384 ETH')).toBeVisible()
 
-    await page.getByRole('button', { name: 'Remover' }).click()
+    await page.getByRole('button', { name: 'Remover Emerald Ape #042' }).click()
     await expect(page.getByText('Seu carrinho está vazio.')).toBeVisible()
   })
 

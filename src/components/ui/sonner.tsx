@@ -6,6 +6,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme="dark"
+      // No mobile, sobe as notificações para não cobrirem a barra de navegação inferior.
+      mobileOffset={{ bottom: 80 }}
       className="toaster group"
       icons={{
         success: (

@@ -4,3 +4,11 @@
  */
 export const safeRedirect = (value: unknown) =>
   typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? value : undefined
+
+export type AuthSearch = { redirect?: string; expired?: boolean }
+
+/** Parâmetros de /login e /cadastro: para onde voltar e se a sessão expirou. */
+export const validateAuthSearch = (search: Record<string, unknown>): AuthSearch => ({
+  redirect: safeRedirect(search.redirect),
+  expired: search.expired === true || search.expired === 'true' || undefined,
+})

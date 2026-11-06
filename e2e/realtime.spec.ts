@@ -14,7 +14,7 @@ test.describe('Tempo real (Socket.IO)', () => {
     await page.getByRole('button', { name: 'Revisei os novos valores' }).click()
     await expect(confirm).toHaveText('Confirmar compra de 1.504 ETH')
     await confirm.click()
-    await expect(page.getByRole('heading', { name: 'Pedido confirmado!' })).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })).toBeVisible({ timeout: 10_000 })
   })
 
   test('edição esgotada no carrinho aparece na hora', async ({ page }) => {
@@ -47,7 +47,7 @@ test.describe('Tempo real (Socket.IO)', () => {
 
     await mock(page, 'disconnectSockets')
     await page.reload()
-    await expect(page.getByRole('heading', { name: 'Pedido confirmado!' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' })).toBeVisible({ timeout: 15_000 })
     expect(await mock(page, 'orders')).toHaveLength(1)
   })
 })

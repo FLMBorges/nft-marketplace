@@ -1,4 +1,3 @@
-import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { LogIn, LogOut, Menu, Search, ShoppingCart } from 'lucide-react'
 import { useState } from 'react'
@@ -15,10 +14,9 @@ import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { DEFAULT_CATALOG_SEARCH, parseText } from '@/lib/catalog-search'
 import { useCart } from '@/api/cart'
-import { clearPrivateData } from '@/api/query-client'
-import { logout, useSession } from '@/api/session'
+import { useSession } from '@/api/session'
+import { useLogout } from '@/components/auth/use-logout'
 import { comingSoon } from '@/lib/coming-soon'
-import { toast } from 'sonner'
 
 const NAV_CLASS =
   'border-b-2 border-transparent pb-1 text-sm hover:text-primary aria-[current=page]:border-primary aria-[current=page]:text-primary'
@@ -119,16 +117,7 @@ function CartLink() {
 
 function AccountActions({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
   const { data: session } = useSession()
-  const navigate = useNavigate()
-  const signOut = useMutation({
-    mutationFn: logout,
-    // Mesmo se a chamada falhar, o cliente descarta tudo da sessão: dados privados não ficam na tela.
-    onSettled: () => {
-      clearPrivateData()
-      toast.success('Você saiu da conta.')
-      navigate({ to: '/', search: DEFAULT_CATALOG_SEARCH })
-    },
-  })
+  const signOut = useLogout()
 
   if (!session) {
     return (

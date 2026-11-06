@@ -26,7 +26,7 @@ type Db = {
   eventSeq: number
 }
 
-const STORAGE_KEY = 'kurio-mock-db:v2'
+const STORAGE_KEY = 'kurio-mock-db:v3'
 
 const seed = (): Db =>
   structuredClone({

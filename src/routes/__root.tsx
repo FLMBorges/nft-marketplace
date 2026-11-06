@@ -2,6 +2,7 @@ import type { QueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, Link, Outlet } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 import { SiteFooter } from '@/components/layout/site-footer'
+import { MobileNav } from '@/components/layout/mobile-nav'
 import { SiteHeader } from '@/components/layout/site-header'
 import { SessionWatcher } from '@/components/session-watcher'
 import { Button } from '@/components/ui/button'
@@ -30,6 +31,9 @@ function RootLayout() {
         <Outlet />
       </main>
       <SiteFooter />
+      <MobileNav />
+      {/* Espaço para a barra inferior do mobile não cobrir o fim da página. */}
+      <div aria-hidden className="h-16 md:hidden" />
       <Toaster />
       <RealtimeSync />
       <SessionWatcher />

@@ -27,13 +27,20 @@ export const registerSchema = z
     message: 'As senhas não coincidem.',
   })
 
+const ensLabel = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .regex(/^$|^[a-z0-9-]{3,40}$/, 'Use de 3 a 40 letras minúsculas, números ou hífen.')
+
 export const profileSchema = z.object({
   name,
   email,
-  phone: z
+  username: z
     .string()
     .trim()
-    .regex(/^$|^\+?[\d\s()-]{10,20}$/, 'Informe um telefone válido.'),
+    .regex(/^[a-z0-9._]{3,30}$/i, 'Use de 3 a 30 letras, números, ponto ou sublinhado.'),
+  ensName: ensLabel,
 })
 
 export const passwordChangeSchema = z
@@ -52,13 +59,23 @@ export const walletSchema = z
     provider: z.enum(WALLET_PROVIDERS, 'Escolha o provedor.'),
     network: z.enum(NETWORKS, 'Escolha a rede.'),
     address: z.string().trim(),
+    ens: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .regex(/^$|^[a-z0-9-]{3,40}(\.[a-z0-9-]+)*\.eth$/, 'Use um nome ENS terminado em .eth.')
+      .default(''),
   })
   .refine((data) => (data.network === 'solana' ? SOLANA_ADDRESS : EVM_ADDRESS).test(data.address), {
     path: ['address'],
     message: 'Endereço inválido para a rede escolhida.',
   })
 
-export const buyerSchema = z.object({ name, email })
+export const buyerSchema = z.object({
+  name,
+  email,
+  note: z.string().trim().max(280, 'Use no máximo 280 caracteres.').default(''),
+})
 
 export const avatarSchema = z.object({
   dataUrl: z
