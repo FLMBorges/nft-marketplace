@@ -18,7 +18,12 @@ export function CatalogFilters({ facets }: { facets?: NftListResponse['facets'] 
     event.preventDefault()
     const form = new FormData(event.currentTarget)
     navigate({
-      search: (prev) => ({ ...prev, minPrice: parsePrice(form.get('minPrice')), maxPrice: parsePrice(form.get('maxPrice')), page: 1 }),
+      search: (prev) => ({
+        ...prev,
+        minPrice: parsePrice(form.get('minPrice')),
+        maxPrice: parsePrice(form.get('maxPrice')),
+        page: 1,
+      }),
       resetScroll: false,
     })
   }
@@ -48,11 +53,25 @@ export function CatalogFilters({ facets }: { facets?: NftListResponse['facets'] 
           <div className="mt-3 grid grid-cols-2 gap-2">
             <label className="text-sm">
               Mínimo
-              <Input name="minPrice" type="number" min={0} step={0.01} defaultValue={search.minPrice} placeholder={facets?.priceRange.min} />
+              <Input
+                name="minPrice"
+                type="number"
+                min={0}
+                step={0.01}
+                defaultValue={search.minPrice}
+                placeholder={facets?.priceRange.min}
+              />
             </label>
             <label className="text-sm">
               Máximo
-              <Input name="maxPrice" type="number" min={0} step={0.01} defaultValue={search.maxPrice} placeholder={facets?.priceRange.max} />
+              <Input
+                name="maxPrice"
+                type="number"
+                min={0}
+                step={0.01}
+                defaultValue={search.maxPrice}
+                placeholder={facets?.priceRange.max}
+              />
             </label>
           </div>
         </fieldset>
@@ -88,7 +107,7 @@ export function CatalogFilters({ facets }: { facets?: NftListResponse['facets'] 
 function FilterGroup({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
-      <h2 className="font-semibold">{title}</h2>
+      <h3 className="font-semibold">{title}</h3>
       <ul className="mt-3">{children}</ul>
     </section>
   )

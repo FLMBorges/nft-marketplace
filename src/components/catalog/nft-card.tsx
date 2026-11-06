@@ -18,7 +18,7 @@ export function NftCard({ nft }: { nft: NftSummary }) {
         loading="lazy"
         className="aspect-square w-full rounded-md object-cover"
       />
-      <h2 className="mt-3 text-sm">{nft.name}</h2>
+      <h3 className="mt-3 text-sm">{nft.name}</h3>
       <p className="text-sm font-semibold text-primary">
         {nft.price} ETH
         {nft.previousPrice && (
