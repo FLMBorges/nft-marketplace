@@ -1,10 +1,15 @@
-import { createRootRouteWithContext, Link, Outlet } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
+import { createRootRouteWithContext, Link, Outlet } from '@tanstack/react-router'
+import { lazy, Suspense } from 'react'
 import { SiteFooter } from '@/components/layout/site-footer'
 import { SiteHeader } from '@/components/layout/site-header'
+import { SessionWatcher } from '@/components/session-watcher'
 import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { DEFAULT_CATALOG_SEARCH } from '@/lib/catalog-search'
+import { RealtimeSync } from '@/realtime/realtime-sync'
+
+const ScenarioPanel = import.meta.env.VITE_ENABLE_MOCKS === 'true' ? lazy(() => import('@/components/dev/scenario-panel')) : null
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   component: RootLayout,
@@ -26,6 +31,13 @@ function RootLayout() {
       </main>
       <SiteFooter />
       <Toaster />
+      <RealtimeSync />
+      <SessionWatcher />
+      {ScenarioPanel && (
+        <Suspense fallback={null}>
+          <ScenarioPanel />
+        </Suspense>
+      )}
     </>
   )
 }

@@ -61,6 +61,7 @@ export type NftListParams = {
   maxPrice?: string
   sort?: Sort
   tab?: Tab
+  collection?: string
   page?: number
 }
 

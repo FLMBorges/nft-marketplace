@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'playwright-report', 'test-results', 'lighthouse', 'public/mockServiceWorker.js', 'src/routeTree.gen.ts']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -18,5 +18,14 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // `_nome` marca algo descartado de propósito (ex.: tirar campos internos de um objeto).
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', ignoreRestSiblings: true }],
+    },
+  },
+  {
+    // Arquivos de rota exportam `Route`, e os componentes do shadcn exportam variantes junto dos componentes.
+    files: ['src/routes/**/*.tsx', 'src/components/ui/**/*.tsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
   },
 ])

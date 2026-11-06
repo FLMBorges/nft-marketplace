@@ -1,6 +1,5 @@
-import { delay, http, HttpResponse } from 'msw'
+import { http } from 'msw'
 import { fromWei, isEth, toWei } from '@/lib/eth'
-import type { ApiErrorBody } from '@/types/api'
 import {
   CATEGORIES,
   NETWORKS,
@@ -13,7 +12,7 @@ import {
 } from '@/types/nft'
 import { db } from '../db'
 import { includes } from '@/lib/includes'
-import { apiError } from '../utils'
+import { apiError, ok } from '../utils'
 
 const PAGE_SIZE = 9
 const NEW_SINCE = '2026-10-01'
@@ -50,8 +49,7 @@ function getFacets(): NftListResponse['facets'] {
 }
 
 export const nftHandlers = [
-  http.get<never, never, NftListResponse | ApiErrorBody>('/api/nfts', async ({ request }) => {
-    await delay()
+  http.get('/api/nfts', async ({ request }) => {
     const params = new URL(request.url).searchParams
     const q = params.get('q')?.trim().toLowerCase() ?? ''
     const category = params.get('category')
@@ -60,6 +58,7 @@ export const nftHandlers = [
     const maxPrice = params.get('maxPrice')
     const sort = params.get('sort') ?? 'recent'
     const tab = params.get('tab') ?? 'all'
+    const collection = params.get('collection')
     const page = Number(params.get('page') ?? '1')
 
     if (
@@ -81,6 +80,7 @@ export const nftHandlers = [
           nft.name.toLowerCase().includes(q) &&
           (!category || nft.category === category) &&
           (!network || nft.network === network) &&
+          (!collection || nft.collection === collection) &&
           (!minPrice || toWei(nft.price) >= toWei(minPrice)) &&
           (!maxPrice || toWei(nft.price) <= toWei(maxPrice)) &&
           (tab !== 'new' || nft.createdAt >= NEW_SINCE) &&
@@ -88,7 +88,7 @@ export const nftHandlers = [
       )
       .sort((a, b) => comparators[sort](a, b) || a.id.localeCompare(b.id))
 
-    return HttpResponse.json({
+    return ok<NftListResponse>({
       items: matches.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map(toSummary),
       page,
       pageSize: PAGE_SIZE,
@@ -98,9 +98,8 @@ export const nftHandlers = [
     })
   }),
 
-  http.get<{ id: string }, never, Nft | ApiErrorBody>('/api/nfts/:id', async ({ params }) => {
-    await delay()
+  http.get<{ id: string }>('/api/nfts/:id', async ({ params }) => {
     const nft = db.nfts.find((item) => item.id === params.id)
-    return nft ? HttpResponse.json(nft) : apiError(404, 'NOT_FOUND', 'NFT não encontrado.')
+    return nft ? ok<Nft>(nft) : apiError(404, 'NOT_FOUND', 'NFT não encontrado.')
   }),
 ]

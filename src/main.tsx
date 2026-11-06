@@ -1,19 +1,9 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { QueryClientProvider } from '@tanstack/react-query'
-import { queryClient } from '@/api/query-client'
-import { RouterProvider, createRouter } from '@tanstack/react-router'
-import { routeTree } from './routeTree.gen'
 import './index.css'
 
-const router = createRouter({ routeTree, context: { queryClient } })
-
-declare module '@tanstack/react-router' {
-  interface Register {
-    router: typeof router
-  }
-}
-
+/**
+ * Os mocks precisam ligar ANTES de a aplicação carregar: o socket.io-client guarda o `WebSocket`
+ * do navegador quando o módulo é importado. Por isso a aplicação é importada só depois.
+ */
 async function enableMocking() {
   if (import.meta.env.VITE_ENABLE_MOCKS !== 'true') return
 
@@ -25,12 +15,6 @@ async function enableMocking() {
   })
 }
 
-enableMocking().then(() =>
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
-    </StrictMode>,
-  ),
-)
+enableMocking()
+  .then(() => import('./app'))
+  .then(({ renderApp }) => renderApp())

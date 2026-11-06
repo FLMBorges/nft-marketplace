@@ -1,5 +1,6 @@
+import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
-import { LogIn, Menu, Search, ShoppingCart } from 'lucide-react'
+import { LogIn, LogOut, Menu, Search, ShoppingCart } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,7 +14,11 @@ import {
 import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { DEFAULT_CATALOG_SEARCH, parseText } from '@/lib/catalog-search'
+import { useCart } from '@/api/cart'
+import { clearPrivateData } from '@/api/query-client'
+import { logout, useSession } from '@/api/session'
 import { comingSoon } from '@/lib/coming-soon'
+import { toast } from 'sonner'
 
 const NAV_CLASS =
   'border-b-2 border-transparent pb-1 text-sm hover:text-primary aria-[current=page]:border-primary aria-[current=page]:text-primary'
@@ -94,6 +99,84 @@ function SearchDialog() {
   )
 }
 
+function CartLink() {
+  const { data: cart } = useCart()
+  const count = cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0
+
+  return (
+    <Button variant="ghost" size="icon" asChild className="relative">
+      <Link to="/carrinho" aria-label={`Carrinho, ${count} ${count === 1 ? 'item' : 'itens'}`}>
+        <ShoppingCart aria-hidden />
+        {count > 0 && (
+          <span aria-hidden className="absolute -top-1 -right-1 grid size-4 place-items-center rounded-full bg-primary text-[0.625rem] font-bold text-primary-foreground">
+            {count}
+          </span>
+        )}
+      </Link>
+    </Button>
+  )
+}
+
+function AccountActions({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
+  const { data: session } = useSession()
+  const navigate = useNavigate()
+  const signOut = useMutation({
+    mutationFn: logout,
+    // Mesmo se a chamada falhar, o cliente descarta tudo da sessão: dados privados não ficam na tela.
+    onSettled: () => {
+      clearPrivateData()
+      toast.success('Você saiu da conta.')
+      navigate({ to: '/', search: DEFAULT_CATALOG_SEARCH })
+    },
+  })
+
+  if (!session) {
+    return (
+      <Button size="sm" asChild className={mobile ? 'mt-6 sm:hidden' : 'ml-2 hidden sm:inline-flex'}>
+        <Link to="/login" onClick={onNavigate}>
+          <LogIn aria-hidden />
+          Entrar
+        </Link>
+      </Button>
+    )
+  }
+
+  const { user } = session
+  return (
+    <div className={mobile ? 'mt-6 flex flex-col items-start gap-4 sm:hidden' : 'ml-2 hidden items-center gap-1 sm:flex'}>
+      <Link to="/perfil" onClick={onNavigate} className="flex items-center gap-2 text-sm hover:text-primary">
+        {user.avatar ? (
+          <img src={user.avatar} alt="" width={28} height={28} className="size-7 rounded-full object-cover" />
+        ) : (
+          <span aria-hidden className="grid size-7 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+            {user.name[0]}
+          </span>
+        )}
+        <span className={mobile ? '' : 'hidden lg:inline'}>{user.name.split(' ')[0]}</span>
+        <span className="sr-only">: meu perfil</span>
+      </Link>
+      {mobile && (
+        <Link to="/carteiras" onClick={onNavigate} className="text-sm hover:text-primary">
+          Carteiras
+        </Link>
+      )}
+      <Button
+        variant="ghost"
+        size={mobile ? 'sm' : 'icon'}
+        aria-label="Sair da conta"
+        disabled={signOut.isPending}
+        onClick={() => {
+          onNavigate?.()
+          signOut.mutate()
+        }}
+      >
+        <LogOut aria-hidden />
+        {mobile && 'Sair'}
+      </Button>
+    </div>
+  )
+}
+
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -112,17 +195,8 @@ export function SiteHeader() {
 
         <div className="ml-auto flex items-center gap-1 md:ml-0">
           <SearchDialog />
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/carrinho" aria-label="Carrinho">
-              <ShoppingCart aria-hidden />
-            </Link>
-          </Button>
-          <Button size="sm" asChild className="ml-2 hidden sm:inline-flex">
-            <Link to="/login">
-              <LogIn aria-hidden />
-              Entrar
-            </Link>
-          </Button>
+          <CartLink />
+          <AccountActions />
 
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
@@ -139,12 +213,7 @@ export function SiteHeader() {
                   <NavItems onNavigate={() => setMenuOpen(false)} />
                 </ul>
               </nav>
-              <Button asChild className="mt-6 sm:hidden">
-                <Link to="/login" onClick={() => setMenuOpen(false)}>
-                  <LogIn aria-hidden />
-                  Entrar
-                </Link>
-              </Button>
+              <AccountActions mobile onNavigate={() => setMenuOpen(false)} />
             </SheetContent>
           </Sheet>
         </div>
