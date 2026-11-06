@@ -2,7 +2,7 @@
 
 Solução do desafio frontend: marketplace de NFTs em **React + TypeScript**, com descoberta, compra e conta do colecionador, desktop e mobile. Toda a API, a autenticação, as carteiras, os pagamentos e os eventos em tempo real são **simulados na camada de rede com MSW**, inclusive no build publicado.
 
-- **Aplicação publicada:** _(adicione aqui a URL da Vercel)_
+- **Aplicação publicada:** [(https://nft-marketplace-6ern04hbi-flmborges.vercel.app)]
 - **Decisões técnicas, contratos e limitações:** [`ARCHITECTURE.md`](./ARCHITECTURE.md)
 
 ## Stack
