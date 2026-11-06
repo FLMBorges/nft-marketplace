@@ -14,10 +14,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  </StrictMode>,
+async function enableMocking() {
+  if (import.meta.env.VITE_ENABLE_MOCKS !== 'true') return
+
+  const { worker } = await import('./mocks/browser')
+  await worker.start({
+    onUnhandledRequest(request, print) {
+      if (new URL(request.url).pathname.startsWith('/api')) print.error()
+    },
+  })
+}
+
+enableMocking().then(() =>
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </StrictMode>,
+  ),
 )
