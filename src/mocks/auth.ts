@@ -32,11 +32,8 @@ type SessionLookup = { user: DbUser; expiresAt: string } | { expired: true } | n
 export function lookupSession(token: string | undefined): SessionLookup {
   const session = token ? db.sessions.find((item) => item.token === token) : undefined
   if (!session) return null
-  if (new Date(session.expiresAt) <= new Date()) {
-    db.sessions = db.sessions.filter((item) => item !== session)
-    persist()
-    return { expired: true }
-  }
+  // A sessão expirada continua registrada: toda chamada com aquele cookie responde "expirada" (não "sem login").
+  if (new Date(session.expiresAt) <= new Date()) return { expired: true }
   const user = db.users.find((item) => item.id === session.userId)
   if (!user) return null
   // Sessão deslizante: cada uso renova o prazo.

@@ -24,8 +24,11 @@ export function errorMessage(error: unknown, fallback = 'Algo deu errado. Tente 
   return fallback
 }
 
-// Sessão expirada em qualquer chamada: avisa a aplicação, que limpa os dados privados e leva ao login.
+// Sessão perdida em qualquer chamada (expirou, ou saiu em outra aba): avisa a aplicação,
+// que limpa os dados privados e leva ao login. As rotas /auth/* tratam o próprio 401 (ex.: senha errada).
 api.interceptors.response.use(undefined, (error) => {
-  if (getApiError(error)?.code === 'SESSION_EXPIRED') window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
+  const code = getApiError(error)?.code
+  const isAuthRoute = isAxiosError(error) && error.config?.url?.startsWith('/auth/')
+  if (code === 'SESSION_EXPIRED' || (code === 'UNAUTHORIZED' && !isAuthRoute)) window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
   return Promise.reject(error)
 })

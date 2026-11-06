@@ -64,7 +64,9 @@ function failureKeyFor(method: string, pathname: string): FailureKey | null {
   const [, , resource, id] = pathname.split('/')
   if (resource === 'nfts') return id ? 'nfts.detail' : 'nfts.list'
   if (resource === 'orders') return method === 'POST' ? 'orders.create' : 'orders.read'
-  if (resource === 'cart' || resource === 'favorites' || resource === 'profile' || resource === 'wallets') return resource
+  // Em favoritos, a falha simulada vale para incluir/remover (a ação com atualização otimista), não para a leitura.
+  if (resource === 'favorites') return method === 'GET' ? null : 'favorites'
+  if (resource === 'cart' || resource === 'profile' || resource === 'wallets') return resource
   if (resource === 'auth') return 'auth'
   return null
 }

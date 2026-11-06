@@ -14,7 +14,7 @@ const FAILURE_LABELS: Record<FailureKey, string> = {
   'nfts.detail': 'Detalhe do NFT',
   auth: 'Login/sessão',
   cart: 'Carrinho',
-  favorites: 'Favoritos',
+  favorites: 'Favoritar/desfavoritar',
   'orders.create': 'Criação de pedido',
   'orders.read': 'Consulta de pedido',
   profile: 'Perfil',
@@ -51,7 +51,7 @@ export default function ScenarioPanel() {
   return (
     <Sheet onOpenChange={(open) => open && setScenario(mock.getScenario())}>
       <SheetTrigger asChild>
-        <Button size="sm" variant="outline" className="fixed bottom-4 left-4 z-40 border-primary bg-background shadow-lg">
+        <Button size="sm" variant="outline" data-testid="scenario-trigger" className="fixed bottom-4 left-4 z-40 border-primary bg-background shadow-lg">
           <FlaskConical aria-hidden /> Cenários
         </Button>
       </SheetTrigger>

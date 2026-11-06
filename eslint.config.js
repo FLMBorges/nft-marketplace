@@ -28,4 +28,10 @@ export default defineConfig([
     files: ['src/routes/**/*.tsx', 'src/components/ui/**/*.tsx'],
     rules: { 'react-refresh/only-export-components': 'off' },
   },
+  {
+    // Fixtures do Playwright usam um parâmetro chamado `use`, que a regra de hooks do React confunde com um hook.
+    files: ['e2e/**/*.ts'],
+    languageOptions: { globals: globals.node },
+    rules: { 'react-hooks/rules-of-hooks': 'off' },
+  },
 ])

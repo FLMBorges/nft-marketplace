@@ -55,3 +55,12 @@ export const test = base.extend<{ scenario: Partial<Scenario> }>({
 })
 
 export { expect }
+
+/** No checkout: conecta a carteira e revisa o pedido. */
+export async function reviewCheckout(page: Page) {
+  await page.goto('/checkout')
+  await page.getByRole('button', { name: 'Conectar carteira' }).click()
+  await expect(page.getByText('Carteira conectada.')).toBeVisible()
+  await page.getByRole('button', { name: 'Revisar pedido' }).click()
+  return page.getByRole('button', { name: /Confirmar compra/ })
+}

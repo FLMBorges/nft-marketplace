@@ -44,6 +44,9 @@ export const mockControl = {
   /** Ids dos NFTs no carrinho do usuário logado (ajuda o painel a escolher o que alterar). */
   cartNftIds: () => [...new Set(Object.values(db.carts).flatMap((cart) => cart.lines.map((line) => line.nftId)))],
 
+  /** Resumo dos pedidos (para conferir que nenhuma compra foi duplicada). */
+  orders: () => db.orders.map(({ id, userId, status, total }) => ({ id, userId, status, total })),
+
   replayLastEvent,
   emitStaleNftEvent: (id: string) => {
     const nft = findNft(id)

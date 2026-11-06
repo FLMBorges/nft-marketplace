@@ -11,9 +11,9 @@ export function SessionWatcher() {
   useEffect(() => {
     function handleExpired() {
       clearPrivateData()
-      toast.warning('Sua sessão expirou. Entre novamente para continuar.', { id: 'session-expired' })
       const isPrivate = router.state.matches.some((match) => match.routeId.startsWith('/_auth'))
-      if (isPrivate) router.navigate({ to: '/login', search: { redirect: router.state.location.href } })
+      if (isPrivate) router.navigate({ to: '/login', search: { redirect: router.state.location.href, expired: true } })
+      else toast.warning('Sua sessão expirou. Entre novamente quando quiser.', { id: 'session-expired' })
     }
     window.addEventListener(SESSION_EXPIRED_EVENT, handleExpired)
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handleExpired)

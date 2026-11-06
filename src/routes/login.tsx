@@ -10,12 +10,15 @@ import { safeRedirect } from '@/lib/redirect'
 import { loginSchema } from '@/lib/schemas'
 
 export const Route = createFileRoute('/login')({
-  validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({ redirect: safeRedirect(search.redirect) }),
+  validateSearch: (search: Record<string, unknown>): { redirect?: string; expired?: boolean } => ({
+    redirect: safeRedirect(search.redirect),
+    expired: search.expired === true || search.expired === 'true' || undefined,
+  }),
   component: LoginPage,
 })
 
 function LoginPage() {
-  const { redirect } = Route.useSearch()
+  const { redirect, expired } = Route.useSearch()
   const { errors, formError, validate, fromApi } = useFormErrors()
   const onSuccess = useAuthSuccess(redirect)
   const mutation = useMutation({ mutationFn: login, onSuccess })
@@ -31,6 +34,12 @@ function LoginPage() {
     <section className="mx-auto max-w-md px-4 py-12">
       <h1 className="text-2xl font-bold">Entrar</h1>
       <p className="mt-2 text-sm text-muted-foreground">Acesse sua conta para comprar, favoritar e acompanhar pedidos.</p>
+
+      {expired && (
+        <p role="status" className="mt-6 rounded-md border border-primary bg-primary/10 px-3 py-2 text-sm">
+          Sua sessão expirou. Entre novamente para continuar de onde parou.
+        </p>
+      )}
 
       <form noValidate onSubmit={submit} className="mt-8 space-y-4 rounded-lg bg-card p-6">
         <FormError message={formError} />
