@@ -1,3 +1,3 @@
-import type { RequestHandler } from 'msw'
+import { nftHandlers } from './nfts'
 
-export const handlers: RequestHandler[] = []
+export const handlers = [...nftHandlers]
