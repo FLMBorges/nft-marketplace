@@ -2,15 +2,15 @@
 
 | Página | Perfil | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| inicio | mobile | **75** ⚠️ | 100 | 100 | 100 | 3943 ms | 0.000 | 507 ms |
-| inicio | desktop | 99 | 100 | 100 | 100 | 974 ms | 0.001 | 33 ms |
-| detalhe | mobile | **69** ⚠️ | 100 | 100 | 100 | 4602 ms | 0.000 | 576 ms |
-| detalhe | desktop | 98 | 100 | 100 | 100 | 1050 ms | 0.031 | 0 ms |
+| inicio | mobile | **68** ⚠️ | 100 | 100 | 100 | 4551 ms | 0.000 | 615 ms |
+| inicio | desktop | 99 | 100 | 100 | 100 | 1025 ms | 0.001 | 22 ms |
+| detalhe | mobile | **72** ⚠️ | 100 | 100 | 100 | 4575 ms | 0.000 | 476 ms |
+| detalhe | desktop | 98 | 100 | 100 | 100 | 1083 ms | 0.031 | 2 ms |
 
 ## Ambiente
 
-- **date**: 2026-11-06T05:54:26.363Z
-- **url**: http://localhost:4173
+- **date**: 2026-11-06T06:15:40.347Z
+- **url**: http://localhost:4180
 - **lighthouse**: 13.6.0
 - **chrome**: Chrome/153.0.0.0
 - **node**: v22.23.4
